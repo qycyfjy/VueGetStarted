@@ -3,15 +3,46 @@ import Home from './components/Home.vue';
 import NoisePage from './components/NoisePage.vue';
 import TodoList from './components/TodoList.vue';
 import EmoticonPage from './components/EmoticonPage.vue';
-import Modal from './components/Modal.vue';
+import NewTodo from './components/NewTodo.vue';
+import TreeView from './components/TreeView.vue';
+import CFB from './components/CFB.vue';
 import { computed, ref } from 'vue';
 
 const routes = {
   "/": Home,
   "/emoticon": EmoticonPage,
   "/noise": NoisePage,
-  "/todo": TodoList,
+  "/todo": NewTodo,
+  "/treeview": TreeView,
+  "/cfb": CFB,
 };
+
+const treeData = ref({
+  name: "C",
+  children: [
+    { name: "vfcompat.dll" },
+    {
+      name: "ProgramData",
+      children: [
+        {
+          name: "Microsoft",
+          children: [
+            { name: "VsCode" },
+            { name: "Windows" }
+          ]
+        },
+        {
+          name: "NVIDIA",
+          children: [
+            { name: "Display.log" },
+            { name: "Display.log_backup" }
+          ]
+        }
+      ]
+    },
+    { name: "Users" }
+  ]
+});
 
 const currentPath = ref(window.location.hash)
 window.addEventListener('hashchange', () => {
@@ -28,6 +59,10 @@ const currentProps = computed(() => {
       canvasHeight: 100,
       isAnimating: false,
     };
+  } else if (path === '/treeview') {
+    return {
+      model: treeData.value
+    }
   }
   return {};
 })
@@ -39,37 +74,26 @@ const showModal = ref(false);
   <div class="main">
     <div class="container">
       <div class="row">
-        <button @click="showModal = true">?</button>
-        <Teleport to="body">
-          <Modal :show="showModal">
-            <template #body>
-              <p>Exploring the Following Demos</p>
-            </template>
-            <template #footer>
-              <button style="float: right;" @click="showModal = false">close</button>
-            </template>
-          </Modal>
-        </Teleport>
+        <a class="two columns" href="#/">Home</a>
+        <a class="two columns" href="#/emoticon">Emoticon</a>
+        <a class="two columns" href="#/noise">Noise</a>
+        <a class="two columns" href="#/todo">Todo</a>
+        <a class="two columns" href="#/treeview">TreeView</a>
+        <a class="two columns" href="#/cfb">CFB</a>
       </div>
-
-      <div class="row">
-        <a class="three columns" href="#/">Home</a>
-        <a class="three columns" href="#/emoticon">Emoticon</a>
-        <a class="three columns" href="#/noise">Noise</a>
-        <a class="three columns" href="#/todo">Todo</a>
-      </div>
-      <div class="row">
+      <div>
+        <!-- <h3 class="row">KeepAlive</h3>
         <div class="row">
-          <h1>KeepAlive</h1>
-          <br>
           <KeepAlive>
             <component :is="currentView" v-bind="currentProps" />
           </KeepAlive>
         </div>
+        <h3 class="row">Not KeepAlive</h3> -->
         <div class="row">
-          <h3>Not KeepAlive</h3>
-          <br>
-          <component :is="currentView" v-bind="currentProps" />
+          <ul v-if="currentView === TreeView">
+            <component :is="currentView" v-bind="currentProps" />
+          </ul>
+          <component v-else :is="currentView" v-bind="currentProps" />
         </div>
       </div>
     </div>
@@ -78,7 +102,7 @@ const showModal = ref(false);
 
 <style scoped>
 .row {
-  margin: 20px auto;
+  /* margin: 20px auto; */
   text-align: center;
 }
 </style>
