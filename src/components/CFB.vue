@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, Ref } from 'vue';
 import Modal from './Modal.vue';
+import SplitPanel from './SplitPanel.vue';
 import CFB from 'cfb';
 
 import { fixString, hexDump, a2ab } from './helper';
@@ -68,53 +69,57 @@ const downloadFile = (entry: Entry) => {
 </script>
 
 <template>
-    <Teleport to="body">
-        <Modal :show="isLoading">
-            <template #body>
-                LOADING...
+    <div class="cfb">
+        <Teleport to="body">
+            <Modal :show="isLoading">
+                <template #body>
+                    LOADING...
+                </template>
+            </Modal>
+        </Teleport>
+        <input type="file" name="eiffile" accept=".eif" ref="inputFileRef" @change="chooseFile">
+        <span v-if="file">{{ file?.size }} kb</span>
+        <SplitPanel orientation="horizontal">
+            <template #left>
+                <div>
+                    <ul class="scrollable">
+                        <li v-for="entry in entries">
+                            <a style="cursor: pointer;" @click.prevent="downloadFile(entry)">{{ entry.name }}</a>
+                        </li>
+                    </ul>
+                </div>
             </template>
-        </Modal>
-    </Teleport>
-    <input type="file" name="eiffile" accept=".eif" ref="inputFileRef" @change="chooseFile">
-    <span v-if="file">{{ file?.size }} kb</span>
-    <div class="container">
-        <div class="left" style="border: 1px solid black;">
-            <ul class="scrollable">
-                <li v-for="entry in entries">
-                    <a style="cursor: pointer;" @click.prevent="downloadFile(entry)">{{ entry.name }}</a>
-                </li>
-            </ul>
-        </div>
-        <div class="right">
-            <div class="container">
-                <div style="width: 50%;">
-                    <input type="radio" name="image" :value="true" v-model="isViewAsImage">
-                    <label for="image">View As Image</label>
+            <template #right>
+                <div class="preview">
+                    <div class="row">
+                        <div style="width: 50%;">
+                            <input type="radio" name="image" :value="true" v-model="isViewAsImage">
+                            <label for="image">View As Image</label>
+                        </div>
+                        <div style="width: 50%;">
+                            <input type="radio" name="hex" :value="false" v-model="isViewAsImage">
+                            <label for="hex">View As Hex</label>
+                        </div>
+                    </div>
+                    <img v-if="isViewAsImage" :src="imagePreview" alt="">
+                    <pre v-else>{{ hexPreview }}</pre>
                 </div>
-                <div style="width: 50%;">
-                    <input type="radio" name="hex" :value="false" v-model="isViewAsImage">
-                    <label for="hex">View As Hex</label>
-                </div>
-            </div>
-            <img v-if="isViewAsImage" :src="imagePreview" alt="">
-            <pre v-else>{{ hexPreview }}</pre>
-        </div>
+            </template>
+        </SplitPanel>
     </div>
 </template>
 
 <style scoped>
-.container {
+.cfb {
+    all: initial;
+}
+
+.preview {
+    margin: 0 0 0 30px;
+}
+
+.row {
     display: flex;
-}
-
-.left {
-    width: 33.33%;
-}
-
-.right {
-    margin: 50px;
-    width: 66.67%;
-    text-align: left;
 }
 
 .scrollable {

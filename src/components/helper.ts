@@ -25,9 +25,7 @@ export const hexDump = (arrayBuffer: ArrayBuffer) => {
                 return byte >= 32 && byte <= 126 ? char : '.';
             })
             .join('');
-        let hexDump = `${address.toString(16).padStart(8, '0')}: ${hexBytes}`;
-        let asciiDump = `${asciiBytes}`;
-        dump += `${hexDump}\t${asciiDump}\n`
+        dump += `${address.toString(16).padStart(8, '0')}: ${hexBytes.padEnd(47, ' ')}\t${asciiBytes}\n`
         address += 16;
     }
 
